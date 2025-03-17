@@ -34,11 +34,10 @@ namespace ProjectManagementApp.ViewModels
         public ICommand EditProjectCommand { get; }
         public ICommand DeleteProjectCommand { get; }
 
-        // Constructor
         public MainViewModel(AppDbContext context)
         {
             _context = context;
-            Projects = new ObservableCollection<Project>(_context.Projects.ToList());
+            Projects = new ObservableCollection<Project>([.. _context.Projects]);
 
             AddProjectCommand = new RelayCommand(_ => AddProject());
             EditProjectCommand = new RelayCommand(_ => EditProject(), _ => SelectedProject != null);
@@ -57,16 +56,27 @@ namespace ProjectManagementApp.ViewModels
 
             _context.Projects.Add(newProject);
             _context.SaveChanges();
-            Projects.Add(newProject);
+            Projects.Add(newProject); 
         }
 
         public void EditProject()
         {
             if (SelectedProject != null)
             {
-                SelectedProject.Name = "Updated Project Name";
+                SelectedProject.Name = "Updated Project Name"; 
+
                 _context.Projects.Update(SelectedProject);
                 _context.SaveChanges();
+
+                var updatedProject = _context.Projects.FirstOrDefault(p => p.Id == SelectedProject.Id);
+                if (updatedProject != null)
+                {
+                    var index = Projects.IndexOf(SelectedProject);
+                    if (index >= 0)
+                    {
+                        Projects[index] = updatedProject;
+                    }
+                }
             }
         }
 
@@ -76,11 +86,13 @@ namespace ProjectManagementApp.ViewModels
             {
                 _context.Projects.Remove(SelectedProject);
                 _context.SaveChanges();
+
                 Projects.Remove(SelectedProject);
             }
         }
     }
 }
+
 
 
 

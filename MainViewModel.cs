@@ -34,6 +34,7 @@ namespace ProjectManagementApp.ViewModels
         public ICommand EditProjectCommand { get; }
         public ICommand DeleteProjectCommand { get; }
 
+        // Constructor
         public MainViewModel(AppDbContext context)
         {
             _context = context;
@@ -59,6 +60,7 @@ namespace ProjectManagementApp.ViewModels
             Projects.Add(newProject); 
         }
 
+       
         public void EditProject()
         {
             if (SelectedProject != null)
@@ -92,6 +94,7 @@ namespace ProjectManagementApp.ViewModels
         }
     }
 }
+
 
 
 

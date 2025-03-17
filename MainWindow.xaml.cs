@@ -49,8 +49,10 @@ namespace ProjectManagementApp
 
             if (result == MessageBoxResult.Yes)
             {
+           
                 ViewModel.DeleteProject();
             }
         }
     }
 }
+

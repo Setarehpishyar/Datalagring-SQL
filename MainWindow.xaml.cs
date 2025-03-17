@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using ProjectManagementApp.Models;
 using ProjectManagementApp.ViewModels;
 using ProjectManagementApp.Views;
@@ -7,9 +7,9 @@ namespace ProjectManagementApp
 {
     public partial class MainWindow : Window
     {
-        private readonly ProjectViewModel ViewModel;
+        private readonly MainViewModel ViewModel;
 
-        public MainWindow(ProjectViewModel viewModel)
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;
@@ -18,17 +18,12 @@ namespace ProjectManagementApp
 
         private void AddProject_Click(object sender, RoutedEventArgs e)
         {
-            var newProject = new Project();
-            var form = new ProjectForm(newProject);
-            if (form.ShowDialog() == true)
-            {
-                ViewModel.AddProject(newProject);
-            }
+            ViewModel.AddProject();
         }
 
         private void EditProject_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedProject is null)
+            if (ViewModel.SelectedProject == null)
             {
                 MessageBox.Show("Please select a project to edit.");
                 return;
@@ -37,13 +32,13 @@ namespace ProjectManagementApp
             var form = new ProjectForm(ViewModel.SelectedProject);
             if (form.ShowDialog() == true)
             {
-                ViewModel.UpdateProject(ViewModel.SelectedProject);
+                ViewModel.EditProject();
             }
         }
 
         private void DeleteProject_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedProject is null)
+            if (ViewModel.SelectedProject == null)
             {
                 MessageBox.Show("Please select a project to delete.");
                 return;
@@ -54,7 +49,7 @@ namespace ProjectManagementApp
 
             if (result == MessageBoxResult.Yes)
             {
-                ViewModel.DeleteProject(ViewModel.SelectedProject);
+                ViewModel.DeleteProject();
             }
         }
     }

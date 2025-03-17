@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementApp.Data;
@@ -15,21 +15,22 @@ namespace ProjectManagementApp
 
         public App()
         {
-            
             Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    
                     services.AddDbContext<AppDbContext>(options =>
                         options.UseSqlite("Data Source=projects.db"));
 
                     services.AddScoped<ProjectRepository>();
+
                     services.AddScoped<ProjectService>();
                     services.AddScoped<CustomerService>();
 
-                    
-                    services.AddSingleton<MainViewModel>();
-                    services.AddSingleton<MainWindow>();
+                    services.AddScoped<MainViewModel>();
+                    services.AddScoped<ProjectViewModel>();
+
+                    services.AddSingleton<MainWindow>(provider =>
+                        new MainWindow(provider.GetRequiredService<MainViewModel>()));
                 })
                 .Build();
         }
@@ -48,7 +49,11 @@ namespace ProjectManagementApp
             var mainWindow = Host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            Host?.Dispose();
+        }
     }
 }
-
-

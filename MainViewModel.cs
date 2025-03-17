@@ -1,27 +1,22 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using ProjectManagementApp.Models;
+using ProjectManagementApp.Data;
 
 namespace ProjectManagementApp.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private readonly AppDbContext _context;
 
-        
         private ObservableCollection<Project> _projects = new ObservableCollection<Project>();
         public ObservableCollection<Project> Projects
         {
             get => _projects;
             set
             {
-                if (_projects != value)
-                {
-                    _projects = value;
-                    OnPropertyChanged(nameof(Projects));
-                }
+                _projects = value;
             }
         }
 
@@ -31,11 +26,7 @@ namespace ProjectManagementApp.ViewModels
             get => _selectedProject;
             set
             {
-                if (_selectedProject != value)
-                {
-                    _selectedProject = value;
-                    OnPropertyChanged(nameof(SelectedProject));
-                }
+                _selectedProject = value;
             }
         }
 
@@ -43,14 +34,18 @@ namespace ProjectManagementApp.ViewModels
         public ICommand EditProjectCommand { get; }
         public ICommand DeleteProjectCommand { get; }
 
-        public MainViewModel()
+        // Constructor
+        public MainViewModel(AppDbContext context)
         {
+            _context = context;
+            Projects = new ObservableCollection<Project>(_context.Projects.ToList());
+
             AddProjectCommand = new RelayCommand(_ => AddProject());
             EditProjectCommand = new RelayCommand(_ => EditProject(), _ => SelectedProject != null);
             DeleteProjectCommand = new RelayCommand(_ => DeleteProject(), _ => SelectedProject != null);
         }
 
-        private void AddProject()
+        public void AddProject()
         {
             var newProject = new Project
             {
@@ -60,33 +55,32 @@ namespace ProjectManagementApp.ViewModels
                 Customer = new Customer { Name = "Default Customer" }
             };
 
+            _context.Projects.Add(newProject);
+            _context.SaveChanges();
             Projects.Add(newProject);
-            OnPropertyChanged(nameof(Projects));
         }
 
-        private void EditProject()
+        public void EditProject()
         {
             if (SelectedProject != null)
             {
-                SelectedProject.Name = "Updated Project";
-                OnPropertyChanged(nameof(SelectedProject));
+                SelectedProject.Name = "Updated Project Name";
+                _context.Projects.Update(SelectedProject);
+                _context.SaveChanges();
             }
         }
 
-        private void DeleteProject()
+        public void DeleteProject()
         {
             if (SelectedProject != null)
             {
+                _context.Projects.Remove(SelectedProject);
+                _context.SaveChanges();
                 Projects.Remove(SelectedProject);
-                OnPropertyChanged(nameof(Projects));
             }
-        }
-
-        
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
+
+
 
